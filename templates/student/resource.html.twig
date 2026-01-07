@@ -1,0 +1,104 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ressource : {{ resourceItem.title }}{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Navigation Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ path('student_dashboard') }}">Ma Formation</a></li>
+                    <li class="breadcrumb-item disabled">{{ resourceItem.lesson.course.title }}</li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ resourceItem.title }}</li>
+                </ol>
+            </nav>
+
+            <div class="card shadow-lg mb-4">
+                <div class="card-header bg-white p-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1 fw-bold">{{ resourceItem.title }}</h5>
+                        <p class="text-muted mb-0 small"><i class="bi bi-book me-1"></i>Leçon : {{ resourceItem.lesson.title }}</p>
+                    </div>
+                    <div>
+                        {% if isCompleted %}
+                            <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Complété</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>En cours</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="card-body p-0 position-relative bg-dark" style="height: 80vh;" oncontextmenu="return false;">
+                    <!-- PDF Viewer (Iframe with toolbar disabled) -->
+                    <iframe 
+                        src="{{ asset(resourceItem.filePath) }}#toolbar=0&navpanes=0&scrollbar=0" 
+                        class="w-100 h-100 border-0"
+                        title="PDF Viewer"
+                    ></iframe>
+                    
+                    <!-- Overlay to prevent direct interaction details (optional, sophisticated) -->
+                    <div class="position-absolute bottom-0 start-0 p-2 text-white-50 small" style="background: rgba(0,0,0,0.5); pointer-events: none;">
+                        Lecture protégée - Ne pas télécharger
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-white p-3 d-flex justify-content-between align-items-center">
+                    <div class="text-muted small">
+                        <i class="bi bi-clock-history me-1"></i>Temps de lecture suivi automatiquement
+                    </div>
+                    
+                    {% if not isCompleted %}
+                        <form method="post" action="{{ path('student_complete_resource', {id: resourceItem.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('complete_resource_' ~ resourceItem.id) }}">
+                            <button class="btn btn-success" id="btn-complete">
+                                <i class="bi bi-check2-circle me-2"></i>Marquer comme terminé
+                            </button>
+                        </form>
+                    {% else %}
+                        <button class="btn btn-outline-success" disabled>
+                            <i class="bi bi-check2-all me-2"></i>Déjà validé
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Tip -->
+            <div class="alert alert-info border-0 shadow-sm">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                Le temps passé sur cette ressource est enregistré. Vous devez la compléter pour accéder au Quiz.
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const resourceId = {{ resourceItem.id }};
+        const trackingUrl = "{{ path('student_update_progress', {id: resourceItem.id}) }}";
+        const intervalTime = 10000; // 10 seconds
+        let isTabActive = true;
+
+        // Visibility API
+        document.addEventListener("visibilitychange", () => {
+             isTabActive = document.visibilityState === "visible";
+        });
+
+        // Periodic heartbeat
+        setInterval(() => {
+            if (isTabActive) {
+                fetch(trackingUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ time: 10 })
+                }).catch(err => console.error('Tracking error:', err));
+            }
+        }, intervalTime);
+    });
+</script>
+{% endblock %}
+

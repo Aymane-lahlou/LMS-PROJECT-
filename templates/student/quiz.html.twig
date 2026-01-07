@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Quiz : {{ quiz.title }}{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- Quiz Header -->
+        <div class="text-center mb-5">
+            <span class="badge bg-warning text-dark mb-2 text-uppercase fw-bold ls-1">Examen de validation</span>
+            <h2 class="fw-bold">{{ quiz.title }}</h2>
+            <p class="text-muted">{{ quiz.description }}</p>
+            <div class="d-inline-flex align-items-center bg-white rounded-pill px-3 py-1 shadow-sm border mt-2">
+                <i class="bi bi-clock-history text-primary me-2"></i>
+                <span class="small fw-bold text-dark">Prenez votre temps</span>
+            </div>
+        </div>
+
+        {% if questions is empty %}
+            <div class="alert alert-warning text-center">
+                <i class="bi bi-exclamation-triangle fs-1 d-block mb-3"></i>
+                <h5>Aucune question disponible</h5>
+                <p>Ce quiz n'a pas encore de questions configurées.</p>
+                <a href="{{ path('student_dashboard') }}" class="btn btn-primary mt-3">Retour au tableau de bord</a>
+            </div>
+        {% else %}
+            <form method="post">
+                <div class="card border-0 shadow-lg overflow-hidden mb-4">
+                    <div class="card-header bg-primary text-white p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0 fw-bold"><i class="bi bi-patch-question me-2"></i>Questions</h5>
+                            <span class="badge bg-white text-primary rounded-pill">{{ questions|length }} Questions</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        {% for question in questions %}
+                            <div class="p-4 border-bottom {% if loop.last %}border-0{% endif %} hover-bg-light transition-base">
+                                <h6 class="fw-bold mb-3 text-primary">Question {{ loop.index }}</h6>
+                                <p class="lead mb-4" style="font-size: 1.1rem;">{{ question.question }}</p>
+                                
+                                <div class="d-grid gap-2">
+                                    {% for choice in question.choices %}
+                                        <div class="position-relative">
+                                            <input class="form-check-input btn-check" type="radio" name="answers[{{ loop.parent.loop.index0 }}]" id="q{{ loop.parent.loop.index0 }}c{{ loop.index0 }}" value="{{ loop.index0 }}" required>
+                                            <label class="btn btn-outline-light text-dark text-start w-100 p-3 border d-flex align-items-center" for="q{{ loop.parent.loop.index0 }}c{{ loop.index0 }}">
+                                                <span class="me-3 fw-bold text-muted bg-light rounded-circle d-flex align-items-center justify-content-center border" style="width: 28px; height: 28px; font-size: 0.8rem;">{{ ['A','B','C','D'][loop.index0] }}</span>
+                                                {{ choice }}
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="card-footer bg-light p-4 text-end">
+                        <a href="{{ path('student_dashboard') }}" class="btn btn-link text-muted text-decoration-none me-2">Annuler</a>
+                        <button class="btn btn-primary px-5 py-2 fw-bold shadow-sm" type="submit">
+                            <i class="bi bi-send-check me-2"></i>Soumettre mes réponses
+                        </button>
+                    </div>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

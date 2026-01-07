@@ -1,0 +1,35 @@
+{
+    "passing_score": 70,
+    "questions": [
+        {
+            "question": "Saepe enim assumenda",
+            "choices": [
+                "Tempora ex laboris m",
+                "Deserunt temporibus ",
+                "Deserunt similique h",
+                "Aut quibusdam volupt"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "Irure fugiat est qua",
+            "choices": [
+                "Repudiandae non quia",
+                "Et aperiam corrupti",
+                "Quod officia aut dol",
+                "Eum aspernatur amet"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "Laborum omnis dolore",
+            "choices": [
+                "Architecto magna bea",
+                "Dolores ut excepteur",
+                "Culpa sed nulla volu",
+                "Aut omnis facilis ve"
+            ],
+            "answer": 0
+        }
+    ]
+}

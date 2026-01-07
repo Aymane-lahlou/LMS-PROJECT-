@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier la ressource : {{ resource.title }}{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="d-flex align-items-center mb-4">
+            <a href="{{ path('teacher_edit_course', {id: resource.lesson.course.id}) }}" class="btn btn-outline-secondary me-3">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h2 class="fw-bold mb-0">Modifier la ressource</h2>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <form method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="_token" value="{{ csrf_token('teacher_edit_resource_' ~ resource.id) }}">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Titre</label>
+                        <input type="text" name="title" class="form-control" value="{{ resource.title }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Ordre</label>
+                        <input type="number" name="sort_order" class="form-control" value="{{ resource.sortOrder }}">
+                    </div>
+
+                    <div class="mb-4">
+                         <label class="form-label fw-bold">Remplacer le fichier (Optionnel)</label>
+                         <div class="input-group mb-2">
+                            <input type="file" name="file" class="form-control" accept="application/pdf">
+                         </div>
+                         <small class="text-muted">Fichier actuel : <a href="{{ asset(resource.filePath) }}" target="_blank">{{ resource.filePath }}</a></small>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                        <a href="{{ path('teacher_edit_course', {id: resource.lesson.course.id}) }}" class="btn btn-light">Annuler</a>
+                        <button type="submit" class="btn btn-primary px-4 fw-bold">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

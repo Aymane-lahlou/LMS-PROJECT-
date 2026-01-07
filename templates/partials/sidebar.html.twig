@@ -1,0 +1,85 @@
+<div class="sidebar">
+    <div class="sidebar-header">
+        <a href="{{ path('app_home') }}" class="sidebar-brand text-decoration-none">
+            <i class="bi bi-mortarboard-fill text-primary"></i>
+            <span>Mini-LMS</span>
+        </a>
+    </div>
+    
+    <nav class="sidebar-nav">
+        <div class="nav-item">
+            <a href="{{ path('app_home') }}" class="nav-link {{ app.request.attributes.get('_route') == 'app_home' ? 'active' : '' }}">
+                <i class="bi bi-house"></i>
+                <span>Accueil</span>
+            </a>
+        </div>
+
+        {% if is_granted('ROLE_ADMIN') %}
+            <h6 class="text-uppercase text-muted ms-3 mt-3 mb-2" style="font-size: 0.75rem;">Administration</h6>
+            <div class="nav-item">
+                <a href="{{ path('admin_dashboard') }}" class="nav-link {{ app.request.attributes.get('_route') == 'admin_dashboard' ? 'active' : '' }}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Tableau de bord</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ path('admin_users') }}" class="nav-link {{ app.request.attributes.get('_route') == 'admin_users' ? 'active' : '' }}">
+                    <i class="bi bi-people"></i>
+                    <span>Gestion Utilisateurs</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ path('admin_create_teacher') }}" class="nav-link {{ app.request.attributes.get('_route') == 'admin_create_teacher' ? 'active' : '' }}">
+                    <i class="bi bi-person-plus-fill"></i>
+                    <span>Créer Enseignant</span>
+                </a>
+            </div>
+        {% endif %}
+
+        {% if is_granted('ROLE_TEACHER') %}
+            <h6 class="text-uppercase text-muted ms-3 mt-3 mb-2" style="font-size: 0.75rem;">Enseignant</h6>
+            <div class="nav-item">
+                <a href="{{ path('teacher_dashboard') }}" class="nav-link {{ app.request.attributes.get('_route') starts with 'teacher' ? 'active' : '' }}">
+                    <i class="bi bi-easel"></i>
+                    <span>Mes Cours</span>
+                </a>
+            </div>
+            <!-- Future: Add 'Students' or 'Reports' links here -->
+        {% endif %}
+
+        {% if is_granted('ROLE_STUDENT') %}
+            <h6 class="text-uppercase text-muted ms-3 mt-3 mb-2" style="font-size: 0.75rem;">Étudiant</h6>
+            <div class="nav-item">
+                <a href="{{ path('student_dashboard') }}" class="nav-link {{ app.request.attributes.get('_route') == 'student_dashboard' ? 'active' : '' }}">
+                    <i class="bi bi-journal-check"></i>
+                    <span>Mon Apprentissage</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ path('student_explore') }}" class="nav-link {{ app.request.attributes.get('_route') == 'student_explore' ? 'active' : '' }}">
+                    <i class="bi bi-compass"></i>
+                    <span>Explorer</span>
+                </a>
+            </div>
+        {% endif %}
+
+        <div class="mt-auto">
+            <hr>
+            {% if app.user %}
+                <div class="nav-item">
+                    <a href="{{ path('app_logout') }}" class="nav-link text-danger">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Déconnexion</span>
+                    </a>
+                </div>
+            {% else %}
+                <div class="nav-item">
+                    <a href="{{ path('app_login') }}" class="nav-link text-primary">
+                        <i class="bi bi-box-arrow-in-right"></i>
+                        <span>Connexion</span>
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </nav>
+</div>

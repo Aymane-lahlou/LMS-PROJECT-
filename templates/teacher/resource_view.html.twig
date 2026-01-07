@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ressource : {{ resourceItem.title }}{% endblock %}
+{% block page_title %}Ressource{% endblock %}
+
+{% block body %}
+    <div class="card">
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <div>
+            <a href="{{ path('teacher_dashboard') }}" class="btn btn-outline-secondary me-2"><i class="bi bi-arrow-left"></i> Retour</a>
+            <h2 class="d-inline-block align-middle mb-0">{{ resourceItem.title }}</h2>
+        </div>
+        <div class="d-flex gap-2">
+             <a href="{{ path('teacher_edit_resource', {id: resourceItem.id}) }}" class="btn btn-outline-primary">
+                <i class="bi bi-pencil me-1"></i>Modifier
+            </a>
+            <a href="{{ path('teacher_download_resource', {id: resourceItem.id}) }}" class="btn btn-primary">
+                <i class="bi bi-download me-1"></i>Télécharger
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+             <iframe src="{{ asset(resourceItem.filePath) }}#toolbar=0&navpanes=0&scrollbar=0" width="100%" height="800px" style="border: none;"></iframe>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,186 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Espace Enseignant{% endblock %}
+{% block page_title %}Tableau de Bord Enseignant{% endblock %}
+
+{% block body %}
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stats-card text-white bg-primary bg-gradient p-3 h-100 border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0 opacity-75">Mes Cours</h6>
+                        <h2 class="fw-bold mb-0">{{ stats.courses }}</h2>
+                    </div>
+                    <div class="stats-icon text-white bg-white bg-opacity-25 rounded-3 p-3">
+                        <i class="bi bi-book"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success bg-gradient text-white p-3 h-100 border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0 opacity-75">Inscriptions</h6>
+                        <h2 class="fw-bold mb-0">{{ stats.courses_with_enrollments }}</h2>
+                    </div>
+                    <div class="stats-icon text-white bg-white bg-opacity-25 rounded-3 p-3">
+                        <i class="bi bi-people"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info bg-gradient text-white p-3 h-100 border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0 opacity-75">Ressources</h6>
+                        <h2 class="fw-bold mb-0">{{ stats.resources }}</h2>
+                    </div>
+                    <div class="stats-icon text-white bg-white bg-opacity-25 rounded-3 p-3">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning bg-gradient text-white p-3 h-100 border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0 opacity-75">Quiz</h6>
+                        <h2 class="fw-bold mb-0">{{ stats.quizzes }}</h2>
+                    </div>
+                    <div class="stats-icon text-white bg-white bg-opacity-25 rounded-3 p-3">
+                        <i class="bi bi-patch-question"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course List -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold mb-0">Mes Cours Actifs</h4>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCourseModal">
+            <i class="bi bi-plus-lg me-2"></i>Nouveau Cours
+        </button>
+    </div>
+
+    <div class="row g-4">
+        {% for course in courses %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 course-card">
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center text-muted" style="height: 160px; overflow: hidden;">
+                        {% if course.coursePicture and course.coursePicture != 'default-course.jpg' %}
+                            <img src="{{ course.coursePicture }}" alt="{{ course.title }}" class="w-100 h-100 object-fit-cover">
+                        {% else %}
+                            <i class="bi bi-book fs-1"></i>
+                        {% endif %}
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between mb-2">
+                             <span class="badge bg-primary bg-opacity-10 text-primary">{{ course.specialty }}</span>
+                             <span class="badge bg-secondary bg-opacity-10 text-secondary">{{ course.targetYear }}e Année</span>
+                        </div>
+                        <h5 class="card-title fw-bold">{{ course.title }}</h5>
+                        <p class="card-text text-muted small flex-grow-1">{{ course.description|slice(0, 100) ~ '...' }}</p>
+                        
+                        <div class="course-meta mt-3">
+                            <span title="Étudiants"><i class="bi bi-people me-1"></i>{{ enrollmentCounts[course.id] ?? 0 }}</span>
+                            <span title="Leçons"><i class="bi bi-journal-album me-1"></i>{{ course.lessons|length }}</span>
+                        </div>
+
+                        <!-- Progress Bar for Class Average -->
+                        <div class="mt-3">
+                           <div class="d-flex justify-content-between small mb-1">
+                               <span>Progression moyenne</span>
+                               <span class="fw-bold">{{ averageCourseProgress[course.id] ?? 0 }}%</span>
+                           </div>
+                           <div class="progress" style="height: 6px;">
+                               <div class="progress-bar bg-success" style="width: {{ averageCourseProgress[course.id] ?? 0 }}%"></div>
+                           </div>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-4">
+                            <a href="{{ path('teacher_course_details', {id: course.id}) }}" class="btn btn-outline-primary btn-sm flex-grow-1">
+                                <i class="bi bi-bar-chart me-1"></i>Suivi
+                            </a>
+                            <a href="{{ path('teacher_edit_course', {id: course.id}) }}" class="btn btn-primary btn-sm flex-grow-1">
+                                <i class="bi bi-pencil me-1"></i>Gérer
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <img src="https://cdni.iconscout.com/illustration/premium/thumb/empty-state-2130362-1800926.png" alt="Empty" style="width: 200px; opacity: 0.5;">
+                    <h5 class="mt-3 text-muted">Aucun cours pour le moment</h5>
+                    <button class="btn btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#createCourseModal">
+                        Créer mon premier cours
+                    </button>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Create Course Modal -->
+    <div class="modal fade" id="createCourseModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" enctype="multipart/form-data">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Créer un nouveau cours</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        {% if formErrors|length > 0 %}
+                            <div class="alert alert-danger">
+                                {% for error in formErrors %}{{ error }}<br>{% endfor %}
+                            </div>
+                        {% endif %}
+                        <input type="hidden" name="_token" value="{{ csrf_token('teacher_create_course') }}">
+                        <div class="mb-3">
+                            <label class="form-label">Titre</label>
+                            <input type="text" name="title" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Spécialité</label>
+                                <select name="specialty" class="form-select" required>
+                                    {% for specialty in specialties %}
+                                        <option value="{{ specialty }}">{{ specialty }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Année</label>
+                                <select name="target_year" class="form-select" required>
+                                    {% for year in studyYears %}
+                                        <option value="{{ year }}">{{ year }}e Année</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                             <label class="form-label">Image (Fichier ou URL)</label>
+                             <input type="file" name="course_picture_file" class="form-control mb-2" accept="image/*">
+                             <input type="text" name="course_picture" class="form-control form-control-sm" placeholder="Ou coller une URL https://...">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Créer le cours</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

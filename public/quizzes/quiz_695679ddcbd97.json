@@ -1,0 +1,135 @@
+{
+    "passing_score": 70,
+    "questions": [
+        {
+            "question": "Dolore quia aute rem",
+            "choices": [
+                "Tempor voluptatum an",
+                "Eveniet similique f",
+                "Est eum laborum So",
+                "Eum a cillum facilis"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "Aut sunt sint autem",
+            "choices": [
+                "Provident aperiam e",
+                "In nesciunt qui pro",
+                "Ullamco doloremque r",
+                "Magni dolore vel id "
+            ],
+            "answer": 1
+        },
+        {
+            "question": "Corrupti cumque est",
+            "choices": [
+                "Maxime repudiandae q",
+                "Facere saepe commodi",
+                "Eum rerum explicabo",
+                "Ex doloremque volupt"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "Mollitia ut error ut",
+            "choices": [
+                "Excepturi iste nesci",
+                "Ut qui magna sit fu",
+                "Aut sunt vero dolore",
+                "Obcaecati in tempor "
+            ],
+            "answer": 3
+        },
+        {
+            "question": "Provident iusto ass",
+            "choices": [
+                "Nostrud distinctio ",
+                "At repellendus Volu",
+                "Nulla optio molesti",
+                "Dolores optio volup"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "Et odit et pariatur",
+            "choices": [
+                "Quisquam maiores dol",
+                "Esse est illo vero ",
+                "Quasi officia sunt e",
+                "Sed rerum alias labo"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "Mollitia est commodo",
+            "choices": [
+                "Dolore est excepteur",
+                "Praesentium veniam ",
+                "Labore nobis volupta",
+                "Qui fugit proident"
+            ],
+            "answer": 0
+        },
+        {
+            "question": "Sint quia vel ut del",
+            "choices": [
+                "Soluta fugiat ullam",
+                "Temporibus ducimus ",
+                "Suscipit doloremque ",
+                "Numquam voluptas mai"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "Magni debitis a reic",
+            "choices": [
+                "Enim autem non qui a",
+                "Dolorem aut delectus",
+                "Aperiam dignissimos ",
+                "Ad aspernatur ut lib"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "Laboris corrupti ea",
+            "choices": [
+                "Ipsam qui eu invento",
+                "Dolores inventore na",
+                "Laboriosam similiqu",
+                "Aut necessitatibus i"
+            ],
+            "answer": 3
+        },
+        {
+            "question": "In sint assumenda au",
+            "choices": [
+                "Sed ipsam labore lab",
+                "Nulla dolores tenetu",
+                "Quidem illo culpa p",
+                "Officia rerum dolore"
+            ],
+            "answer": 0
+        },
+        {
+            "question": "Quia odit vero at ve",
+            "choices": [
+                "Rem quam dolor quasi",
+                "Eius mollit incididu",
+                "Animi rerum vel rep",
+                "Eligendi odio sint e"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "Aut sunt neque sit ",
+            "choices": [
+                "Et cum Nam et in sed",
+                "Ut duis officiis qua",
+                "Deleniti veniam nem",
+                "Quod laborum totam q"
+            ],
+            "answer": 1
+        }
+    ]
+}

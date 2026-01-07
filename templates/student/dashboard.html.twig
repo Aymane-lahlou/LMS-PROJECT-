@@ -1,0 +1,172 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Espace Étudiant{% endblock %}
+{% block page_title %}Mon Espace Apprentissage{% endblock %}
+
+{% block body %}
+    <!-- Section: Available Courses for Enrollment -->
+    <div class="mb-5" id="explore">
+        <div class="d-flex align-items-center mb-4">
+            <div class="bg-primary bg-opacity-10 p-2 rounded-circle me-3 text-primary">
+                <i class="bi bi-compass fs-4"></i>
+            </div>
+            <div>
+                <h4 class="fw-bold mb-0">Découvrir de nouveaux cours</h4>
+                <p class="text-muted mb-0 small">Cours disponibles pour votre filière</p>
+            </div>
+        </div>
+
+        {% if availableCourses is empty %}
+            <div class="alert alert-light border-0 shadow-sm d-flex align-items-center">
+                <i class="bi bi-info-circle-fill text-primary me-3 fs-4"></i>
+                <div>
+                    <strong>Aucun nouveau cours disponible.</strong>
+                    <div class="text-muted small">Vous êtes déjà inscrit à tous les cours de votre niveau ou aucun cours n'est publié.</div>
+                </div>
+            </div>
+        {% else %}
+            <div class="row g-4">
+                {% for course in availableCourses %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 course-card border-0 shadow-sm">
+                            <div class="card-body d-flex flex-column p-4">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2">Nouveau</span>
+                                    <small class="text-muted fw-bold">{{ course.specialty }}</small>
+                                </div>
+                                
+                                <h5 class="card-title fw-bold mb-2">{{ course.title }}</h5>
+                                <p class="card-text text-muted small flex-grow-1">{{ course.description|slice(0, 100) }}...</p>
+                                
+                                <div class="d-flex align-items-center text-muted small mb-4">
+                                    <i class="bi bi-person-circle me-2"></i>
+                                    <span>{{ course.teacher.email }}</span>
+                                </div>
+
+                                <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                                    <span class="small fw-bold text-dark"><i class="bi bi-journal-text me-1"></i>{{ course.lessons|length }} leçons</span>
+                                    <form method="post" action="{{ path('student_enroll_course', {id: course.id}) }}">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('enroll_course_' ~ course.id) }}">
+                                        <button class="btn btn-primary btn-sm rounded-pill px-4">
+                                            S'inscrire <i class="bi bi-arrow-right ms-2"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Section: My Enrolled Courses -->
+    <div class="mb-5">
+        <div class="d-flex align-items-center mb-4">
+            <div class="bg-success bg-opacity-10 p-2 rounded-circle me-3 text-success">
+                <i class="bi bi-journal-bookmark fs-4"></i>
+            </div>
+            <div>
+                <h4 class="fw-bold mb-0">Mes cours en cours</h4>
+                <p class="text-muted mb-0 small">Reprenez votre apprentissage là où vous l'avez laissé</p>
+            </div>
+        </div>
+
+        {% if courses is empty %}
+            <div class="text-center py-5 bg-white rounded-4 shadow-sm">
+                <h5 class="text-muted">Vous n'êtes inscrit à aucun cours</h5>
+                <p class="text-muted">Explorez les cours ci-dessus pour commencer.</p>
+            </div>
+        {% else %}
+            <div class="row g-4">
+                {% for course in courses %}
+                    <div class="col-lg-6">
+                        <div class="card h-100 border-0 shadow-sm course-card">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <h5 class="card-title fw-bold mb-0">{{ course.title }}</h5>
+                                    {% set progress = progressByCourse[course.id] ?? 0 %}
+                                    <div class="d-flex align-items-center">
+                                        <span class="fw-bold me-2 text-primary">{{ progress }}%</span>
+                                        <div class="progress" style="width: 60px; height: 6px;">
+                                            <div class="progress-bar bg-primary" style="width: {{ progress }}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <p class="text-muted small mb-4">{{ course.description }}</p>
+
+                                <div class="accordion accordion-flush" id="course-{{ course.id }}">
+                                    {% for lesson in course.lessons %}
+                                        {% set isLessonCompleted = completedLessons[lesson.id] is defined %}
+                                        <div class="accordion-item border-0 mb-2 rounded-3 overflow-hidden {{ isLessonCompleted ? 'bg-success bg-opacity-10' : 'bg-light' }}">
+                                            <h2 class="accordion-header" id="heading-{{ lesson.id }}">
+                                                <button class="accordion-button collapsed bg-transparent shadow-none fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#lesson-{{ lesson.id }}">
+                                                    {% if isLessonCompleted %}
+                                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                                    {% else %}
+                                                        <span class="me-3 text-muted">#{{ lesson.sortOrder }}</span>
+                                                    {% endif %}
+                                                     {{ lesson.title }}
+                                                </button>
+                                            </h2>
+                                            <div id="lesson-{{ lesson.id }}" class="accordion-collapse collapse" data-bs-parent="#course-{{ course.id }}">
+                                                <div class="accordion-body bg-white pt-0">
+                                                    <ul class="list-group list-group-flush">
+                                                        <!-- Resources -->
+                                                        {% for res in lesson.resources %}
+                                                            {% set isResCompleted = completedResources[res.id] is defined %}
+                                                            <li class="list-group-item px-0 d-flex justify-content-between align-items-center border-bottom-0 py-2">
+                                                                <div class="d-flex align-items-center">
+                                                                    <div class="avatar-circle {{ isResCompleted ? 'bg-success text-white' : 'bg-light text-primary' }} me-3 flex-shrink-0" style="width: 32px; height: 32px;">
+                                                                        <i class="bi {{ isResCompleted ? 'bi-check-lg' : 'bi-file-earmark-pdf small' }}"></i>
+                                                                    </div>
+                                                                    <div>
+                                                                        <div class="small fw-bold {{ isResCompleted ? 'text-decoration-line-through text-muted' : '' }}">{{ res.title }}</div>
+                                                                        <div class="text-muted extra-small">Lecture obligatoire</div>
+                                                                    </div>
+                                                                </div>
+                                                                <a class="btn btn-sm {{ isResCompleted ? 'btn-outline-success' : 'btn-outline-primary' }} rounded-pill" href="{{ path('student_view_resource', {id: res.id}) }}">
+                                                                    {{ isResCompleted ? 'Revoir' : 'Lecture' }}
+                                                                </a>
+                                                            </li>
+                                                        {% endfor %}
+                                                        
+                                                        <!-- Quizzes -->
+                                                        {% for quiz in lesson.quizzes %}
+                                                            {% set isQuizPassed = passedQuizzes[quiz.id] is defined %}
+                                                            <li class="list-group-item px-0 d-flex justify-content-between align-items-center border-bottom-0 py-2 mt-2 {{ isQuizPassed ? 'bg-success bg-opacity-10' : 'bg-warning bg-opacity-10' }} rounded-3 px-2">
+                                                                <div class="d-flex align-items-center">
+                                                                    <div class="avatar-circle {{ isQuizPassed ? 'bg-success text-white' : 'bg-warning text-dark' }} me-3 flex-shrink-0" style="width: 32px; height: 32px;">
+                                                                        <i class="bi {{ isQuizPassed ? 'bi-trophy-fill' : 'bi-patch-question-fill small' }}"></i>
+                                                                    </div>
+                                                                    <div>
+                                                                        <div class="small fw-bold {{ isQuizPassed ? 'text-success' : 'text-dark' }}">{{ quiz.title }}</div>
+                                                                        <div class="{{ isQuizPassed ? 'text-success' : 'text-dark' }} text-opacity-75 extra-small">Quiz de validation</div>
+                                                                    </div>
+                                                                </div>
+                                                                <a class="btn btn-sm {{ isQuizPassed ? 'btn-success text-white' : 'btn-warning text-dark' }} rounded-pill fw-bold" href="{{ path('student_take_quiz', {id: quiz.id}) }}">
+                                                                    {% if isQuizPassed %}
+                                                                        <i class="bi bi-check-circle-fill me-1"></i> Réussi
+                                                                    {% else %}
+                                                                        <i class="bi bi-play-fill me-1"></i> Quiz
+                                                                    {% endif %}
+                                                                </a>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div class="text-muted small text-center py-3">Contenu à venir...</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

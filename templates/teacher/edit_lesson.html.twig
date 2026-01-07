@@ -1,0 +1,119 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier la leçon : {{ lesson.title }}{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="d-flex align-items-center mb-4">
+            <a href="{{ path('teacher_edit_course', {id: lesson.course.id}) }}" class="btn btn-outline-secondary me-3">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h2 class="fw-bold mb-0">Modifier la leçon</h2>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <form method="post">
+                    <input type="hidden" name="_token" value="{{ csrf_token('teacher_edit_lesson_' ~ lesson.id) }}">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Titre de la leçon</label>
+                        <input type="text" name="title" class="form-control form-control-lg" value="{{ lesson.title }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="4">{{ lesson.description }}</textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Ordre (Tri)</label>
+                        <input type="number" name="sort_order" class="form-control" value="{{ lesson.sortOrder }}" min="0">
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                        <a href="{{ path('teacher_edit_course', {id: lesson.course.id}) }}" class="btn btn-light">Annuler</a>
+                        <button type="submit" class="btn btn-primary px-4 fw-bold">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Lesson Content Management -->
+        <div class="card shadow-sm border-0 mt-4">
+             <div class="card-header bg-white p-4 border-bottom-0">
+                 <h4 class="fw-bold mb-0">Contenu de la leçon</h4>
+             </div>
+             <div class="card-body p-0">
+                 {% if lesson.resources is empty and lesson.quizzes is empty %}
+                    <div class="text-center py-4 text-muted">
+                        <p class="mb-0">Aucun contenu.</p>
+                    </div>
+                 {% else %}
+                    <ul class="list-group list-group-flush">
+                        <!-- Resources -->
+                        {% for resource in lesson.resources %}
+                            <li class="list-group-item p-4 d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle bg-light text-primary me-3 flex-shrink-0" style="width: 40px; height: 40px; display:flex; align-items:center; justify-content:center; border-radius:50%;">
+                                        <i class="bi bi-file-earmark-pdf fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-0">{{ resource.title }}</h6>
+                                        <small class="text-muted">Ressource (<a href="{{ path('teacher_download_resource', {id: resource.id}) }}">Télécharger</a>)</small>
+                                    </div>
+                                </div>
+                                <div class="btn-group">
+                                    <a href="{{ path('teacher_view_resource', {id: resource.id}) }}" class="btn btn-outline-secondary btn-sm" title="Voir">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{{ path('teacher_edit_resource', {id: resource.id}) }}" class="btn btn-outline-primary btn-sm" title="Modifier/Remplacer">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                </div>
+                            </li>
+                        {% endfor %}
+
+                        <!-- Quizzes -->
+                        {% for quiz in lesson.quizzes %}
+                            <li class="list-group-item p-4 d-flex justify-content-between align-items-center bg-warning bg-opacity-10">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle bg-warning text-dark me-3 flex-shrink-0" style="width: 40px; height: 40px; display:flex; align-items:center; justify-content:center; border-radius:50%;">
+                                        <i class="bi bi-patch-question-fill fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-0">{{ quiz.title }}</h6>
+                                        <small class="text-dark text-opacity-75">Quiz (<a href="{{ path('teacher_download_quiz', {id: quiz.id}) }}" class="text-dark text-decoration-underline">JSON</a>)</small>
+                                    </div>
+                                </div>
+                                <div class="btn-group">
+                                    <a href="{{ path('teacher_test_quiz', {id: quiz.id}) }}" class="btn btn-outline-success btn-sm" title="Tester">
+                                        <i class="bi bi-play-circle"></i>
+                                    </a>
+                                    <a href="{{ path('teacher_edit_quiz', {id: quiz.id}) }}" class="btn btn-outline-dark btn-sm" title="Modifier/Remplacer">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                 {% endif %}
+             </div>
+        </div>
+        
+        <div class="card mt-4 shadow-sm border-0 bg-light">
+             <div class="card-body p-4">
+                 <h5 class="fw-bold mb-3 text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Zone de danger</h5>
+                 <p class="text-muted small">La suppression de cette leçon entraînera la suppression de toutes ses ressources et quiz associés.</p>
+                 <form method="post" action="{{ path('teacher_delete_lesson', {id: lesson.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette leçon ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('teacher_delete_lesson_' ~ lesson.id) }}">
+                    <button type="submit" class="btn btn-outline-danger"><i class="bi bi-trash me-1"></i>Supprimer la leçon</button>
+                 </form>
+             </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

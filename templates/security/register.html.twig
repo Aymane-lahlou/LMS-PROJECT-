@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription étudiant{% endblock %}
+{% block page_title %}Inscription étudiant{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-person-plus me-2"></i>Créer un compte étudiant</h5>
+                </div>
+                <div class="card-body">
+                    {{ form_start(registrationForm) }}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                {{ form_row(registrationForm.firstName) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form_row(registrationForm.lastName) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form_row(registrationForm.email) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form_row(registrationForm.password) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form_row(registrationForm.specialty) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form_row(registrationForm.studyYear) }}
+                            </div>
+                        </div>
+                        <p class="text-muted mt-3 mb-1"><i class="bi bi-info-circle me-1"></i>Votre compte sera créé en statut « PENDING » et devra être activé par un administrateur avant de pouvoir vous connecter.</p>
+                        <button class="btn btn-primary mt-3">Créer mon compte</button>
+                    {{ form_end(registrationForm) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

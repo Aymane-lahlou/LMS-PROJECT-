@@ -1,0 +1,35 @@
+{
+    "passing_score": 70,
+    "questions": [
+        {
+            "question": "Velit voluptate nesc",
+            "choices": [
+                "Qui incidunt mollit",
+                "Amet voluptas labor",
+                "Sit obcaecati at mi",
+                "Commodi consequatur"
+            ],
+            "answer": 3
+        },
+        {
+            "question": "Sequi occaecat esse ",
+            "choices": [
+                "Accusantium tempora ",
+                "Ipsum maxime possimu",
+                "Ullamco maxime eum m",
+                "Soluta ipsa labore "
+            ],
+            "answer": 2
+        },
+        {
+            "question": "Quis reiciendis erro",
+            "choices": [
+                "Dolorem occaecat ull",
+                "Reiciendis vitae mol",
+                "Ut similique quod no",
+                "Aperiam ullamco offi"
+            ],
+            "answer": 3
+        }
+    ]
+}

@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter une ressource{% endblock %}
+{% block page_title %}Ajouter une ressource{% endblock %}
+
+{% block body %}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Téléverser un PDF pour {{ lesson.title }}</h5>
+        </div>
+        <div class="card-body">
+            {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+            {{ form_row(form.title) }}
+            {{ form_row(form.file) }}
+            {{ form_row(form.sort_order) }}
+            <button class="btn btn-primary mt-2"><i class="bi bi-upload me-1"></i>Envoyer</button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

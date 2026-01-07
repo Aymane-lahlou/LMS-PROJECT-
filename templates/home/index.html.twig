@@ -1,0 +1,175 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mini-LMS - Plateforme d'Apprentissage{% endblock %}
+
+{% block stylesheets %}
+<style>
+    /* Specific Home Styles */
+    .hero-section {
+        background: linear-gradient(135deg, rgba(67,97,238,0.05), rgba(247,37,133,0.05));
+        border-radius: var(--border-radius-lg);
+        padding: 4rem 2rem;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-pill {
+        display: inline-block;
+        background: rgba(67,97,238,0.1);
+        color: var(--primary-color);
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: rgba(67,97,238,0.1);
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .role-card {
+        padding: 2rem;
+        height: 100%;
+        transition: transform 0.3s ease;
+    }
+    
+    .role-card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+{% endblock %}
+
+{% block header %}
+    <!-- Custom Header for Home Page (Overriding the dashboard header) -->
+    <div class="d-flex w-100 justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0 fw-bold">Bienvenue sur Mini-LMS</h4>
+            <small class="text-muted">Votre portail d'apprentissage centralisé</small>
+        </div>
+        <div>
+            {% if not app.user %}
+                <a href="{{ path('app_login') }}" class="btn btn-outline-primary me-2">Connexion</a>
+                <a href="{{ path('app_register') }}" class="btn btn-primary">Inscription</a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <!-- Hero Section -->
+    <div class="hero-section text-center text-md-start">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <h1 class="display-4 fw-bold mb-4">L'excellence pédagogique digitalisée</h1>
+                <p class="lead text-muted mb-4" style="max-width: 600px;">
+                    Une plateforme intuitive pour gérer les cours, suivre les progressions et valider les acquis de manière centralisée et sécurisée.
+                </p>
+                <div class="d-flex gap-3 justify-content-center justify-content-md-start">
+                    {% if app.user %}
+                        {% if is_granted('ROLE_STUDENT') %}
+                            <a href="{{ path('student_dashboard') }}" class="btn btn-primary btn-lg px-4"><i class="bi bi-play-circle me-2"></i>Mon Dashboard</a>
+                        {% elseif is_granted('ROLE_TEACHER') %}
+                            <a href="{{ path('teacher_dashboard') }}" class="btn btn-primary btn-lg px-4"><i class="bi bi-easel me-2"></i>Espace Enseignant</a>
+                        {% elseif is_granted('ROLE_ADMIN') %}
+                            <a href="{{ path('admin_dashboard') }}" class="btn btn-primary btn-lg px-4"><i class="bi bi-speedometer2 me-2"></i>Administration</a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{{ path('app_register') }}" class="btn btn-primary btn-lg px-4">Créer un compte</a>
+                        <a href="#features" class="btn btn-outline-secondary btn-lg px-4">Découvrir</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block text-center">
+                <img src="https://cdni.iconscout.com/illustration/premium/thumb/online-learning-4152277-3444390.png" alt="Education" class="img-fluid" style="max-height: 350px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="row g-4 mb-5" id="features">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 p-3">
+                <div class="d-flex align-items-center">
+                    <div class="feature-icon bg-success bg-opacity-10 text-success me-3">
+                        <i class="bi bi-journal-check"></i>
+                    </div>
+                    <div>
+                        <h3 class="fw-bold mb-0">{{ stats.courses ?? '0' }}</h3>
+                        <p class="text-muted mb-0">Cours Actifs</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 p-3">
+                <div class="d-flex align-items-center">
+                    <div class="feature-icon bg-info bg-opacity-10 text-info me-3">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div>
+                        <h3 class="fw-bold mb-0">{{ stats.students ?? '0' }}</h3>
+                        <p class="text-muted mb-0">Étudiants Inscrits</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 p-3">
+                <div class="d-flex align-items-center">
+                    <div class="feature-icon bg-warning bg-opacity-10 text-warning me-3">
+                        <i class="bi bi-person-video3"></i>
+                    </div>
+                    <div>
+                        <h3 class="fw-bold mb-0">{{ stats.teachers ?? '0' }}</h3>
+                        <p class="text-muted mb-0">Enseignants Qualifiés</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Roles / More Info -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card role-card">
+                <div class="feature-icon">
+                    <i class="bi bi-book"></i>
+                </div>
+                <h5>Pour les Enseignants</h5>
+                <p class="text-muted">Créez des cours riches, ajoutez des ressources PDF sécurisées et générez des quiz interactifs pour évaluer vos étudiants.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card role-card">
+                <div class="feature-icon theme-secondary">
+                    <i class="bi bi-mortarboard"></i>
+                </div>
+                <h5>Pour les Étudiants</h5>
+                <p class="text-muted">Suivez votre progression en temps réel, accédez aux cours de votre filière et validez vos acquis module par module.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card role-card">
+                <div class="feature-icon theme-accent">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <h5>Administration</h5>
+                <p class="text-muted">Gérez les utilisateurs, supervisez les statistiques globales et assurez le bon fonctionnement de la plateforme.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

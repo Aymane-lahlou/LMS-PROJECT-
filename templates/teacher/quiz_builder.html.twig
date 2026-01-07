@@ -1,0 +1,118 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un quiz{% endblock %}
+{% block page_title %}Création de quiz{% endblock %}
+
+{% block body %}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Quiz pour {{ lesson.title }}</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-6">
+                    <h6>Importer un JSON</h6>
+                    {{ form_start(uploadForm, {'attr': {'enctype': 'multipart/form-data'}}) }}
+                        {{ form_row(uploadForm.title) }}
+                        {{ form_row(uploadForm.description) }}
+                        {{ form_row(uploadForm.jsonFile) }}
+                        <button class="btn btn-success mt-3"><i class="bi bi-upload me-1"></i>Importer le JSON</button>
+                    {{ form_end(uploadForm) }}
+                    <p class="small text-muted mt-2 mb-0">Le fichier doit contenir un objet JSON avec une clé <code>questions</code>.</p>
+
+                    <hr>
+                    <h6>Générateur dynamique</h6>
+                    <form method="post" id="dynamic-quiz-form">
+                        <input type="hidden" name="_token_dynamic_quiz" value="{{ csrf_token('dynamic_quiz_' ~ lesson.id) }}">
+                        <div class="mb-2">
+                            <label class="form-label">Titre du quiz</label>
+                            <input type="text" name="dynamic_title" class="form-control" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Description</label>
+                            <input type="text" name="dynamic_description" class="form-control">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Nombre de questions</label>
+                            <input type="number" id="dynamic-question-count" name="dynamic_question_count" class="form-control" min="1" max="20" value="3" required>
+                        </div>
+                        <div id="dynamic-questions"></div>
+                        <input type="hidden" name="dynamic_quiz_json" id="dynamic-quiz-json">
+                        <button type="button" class="btn btn-outline-secondary btn-sm mt-2" id="generate-dynamic"><i class="bi bi-gear me-1"></i>Générer</button>
+                        <button type="submit" class="btn btn-warning btn-sm mt-2"><i class="bi bi-save me-1"></i>Enregistrer</button>
+                    </form>
+                    <p class="small text-muted mt-2 mb-0">Les questions générées seront stockées en JSON avec 4 options par défaut.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        const generateBtn = document.getElementById('generate-dynamic');
+        const container = document.getElementById('dynamic-questions');
+        const jsonField = document.getElementById('dynamic-quiz-json');
+
+        function buildFields(count) {
+            container.innerHTML = '';
+            for (let i = 1; i <= count; i++) {
+                container.innerHTML += `
+                <fieldset class="border rounded p-2 mb-2">
+                    <legend class="fs-6">Question ${i}</legend>
+                    <label class="form-label">Question</label>
+                    <input type="text" class="form-control mb-2" name="q${i}_text" required>
+                    ${[1,2,3,4].map(n => `
+                        <label class="form-label">Option ${n}</label>
+                        <input type="text" class="form-control mb-2" name="q${i}_option_${n}" required>
+                    `).join('')}
+                    <label class="form-label">Bonne réponse (1-4)</label>
+                    <input type="number" class="form-control" name="q${i}_answer" min="1" max="4" required>
+                </fieldset>
+                `;
+            }
+        }
+
+        function buildJson() {
+            const fieldsets = container.querySelectorAll('fieldset');
+            const questions = [];
+            let idx = 0;
+            fieldsets.forEach((fs) => {
+                idx++;
+                const text = fs.querySelector(`[name="q${idx}_text"]`).value;
+                const choices = [];
+                for (let n = 1; n <= 4; n++) {
+                    choices.push(fs.querySelector(`[name="q${idx}_option_${n}"]`).value);
+                }
+                const answer = parseInt(fs.querySelector(`[name="q${idx}_answer"]`).value, 10) - 1;
+                questions.push({
+                    question: text,
+                    choices: choices,
+                    answer: isNaN(answer) ? 0 : answer
+                });
+            });
+            const payload = {
+                passing_score: 70,
+                questions: questions
+            };
+            jsonField.value = JSON.stringify(payload);
+        }
+
+        generateBtn?.addEventListener('click', () => {
+            const count = parseInt(document.getElementById('dynamic-question-count').value, 10);
+            if (!count || count < 1) {
+                alert('Veuillez saisir un nombre de questions valide.');
+                return;
+            }
+            buildFields(count);
+        });
+
+        document.getElementById('dynamic-quiz-form')?.addEventListener('submit', (e) => {
+            buildJson();
+        });
+
+        // initialize defaults
+        buildFields(parseInt(document.getElementById('dynamic-question-count').value, 10));
+    </script>
+{% endblock %}

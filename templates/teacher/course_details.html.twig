@@ -1,0 +1,128 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails du Cours : {{ course.title }}{% endblock %}
+
+{% block body %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="{{ path('teacher_dashboard') }}">Tableau de bord</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ course.title }}</li>
+            </ol>
+        </nav>
+        <h2 class="fw-bold">{{ course.title }}</h2>
+        <p class="text-muted">{{ course.specialty }} - {{ course.targetYear }}</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ path('teacher_dashboard') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Retour
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0"><i class="bi bi-people me-2"></i>Suivi des Étudiants Inscrits</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th class="ps-4">Étudiant</th>
+                    <th>Email</th>
+                    <th>Progression</th>
+                    <th>Temps de Lecture</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in studentStats %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-circle bg-primary text-white me-3 d-flex align-items-center justify-content-center rounded-circle" style="width: 40px; height: 40px;">
+                                    {{ stat.user.firstName|first|upper }}{{ stat.user.lastName|first|upper }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ stat.user.firstName }} {{ stat.user.lastName }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ stat.user.email }}</td>
+                        <td style="width: 25%;">
+                            <div class="d-flex align-items-center">
+                                <div class="progress flex-grow-1 me-2" style="height: 6px;">
+                                    <div class="progress-bar {{ stat.progress == 100 ? 'bg-success' : 'bg-primary' }}" role="progressbar" style="width: {{ stat.progress }}%"></div>
+                                </div>
+                                <span class="small fw-bold">{{ stat.progress }}%</span>
+                            </div>
+                        </td>
+                        <td>
+                            {% set hours = (stat.timeSpent / 3600)|round(0, 'floor') %}
+                            {% set minutes = ((stat.timeSpent % 3600) / 60)|round(0, 'floor') %}
+                            <span class="badge bg-light text-dark border">
+                                <i class="bi bi-clock me-1"></i>
+                                {% if hours > 0 %}{{ hours }}h {% endif %}{{ minutes }}min
+                            </span>
+                        </td>
+                        <td>
+                            {% if stat.progress == 100 %}
+                                <span class="badge bg-success-subtle text-success">Complété</span>
+                            {% elseif stat.progress > 0 %}
+                                <span class="badge bg-warning-subtle text-warning">En cours</span>
+                            {% else %}
+                                <span class="badge bg-secondary-subtle text-secondary">Non démarré</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <i class="bi bi-person-x fs-1 d-block mb-3"></i>
+                            Aucun étudiant n'est inscrit à ce cours pour le moment.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-white fw-bold">Statistiques Globales</div>
+            <div class="card-body">
+                <canvas id="progressChart" style="max-height: 250px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Simple Chart Demo (Optional)
+        const ctx = document.getElementById('progressChart');
+        if(ctx) {
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Complété', 'En cours', 'Non démarré'],
+                    datasets: [{
+                        data: [
+                            {{ studentStats|filter(s => s.progress == 100)|length }},
+                            {{ studentStats|filter(s => s.progress > 0 and s.progress < 100)|length }},
+                            {{ studentStats|filter(s => s.progress == 0)|length }}
+                        ],
+                        backgroundColor: ['#198754', '#ffc107', '#6c757d']
+                    }]
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

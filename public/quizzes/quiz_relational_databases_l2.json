@@ -1,0 +1,15 @@
+{
+  "passing_score": 70,
+  "questions": [
+    {
+      "question": "Sample question 1?",
+      "choices": ["Choice A", "Choice B", "Choice C"],
+      "answer": 0
+    },
+    {
+      "question": "Sample question 2?",
+      "choices": ["Choice A", "Choice B", "Choice C"],
+      "answer": 1
+    }
+  ]
+}

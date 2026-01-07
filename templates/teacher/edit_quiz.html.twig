@@ -1,0 +1,224 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier le Quiz : {{ quiz.title }}{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-md-9">
+        <div class="d-flex align-items-center mb-4">
+            <a href="{{ path('teacher_edit_course', {id: quiz.lesson.course.id}) }}" class="btn btn-outline-secondary me-3">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h2 class="fw-bold mb-0">Modifier le Quiz</h2>
+        </div>
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between mb-4">
+                    <h5 class="fw-bold">Détails</h5>
+                    <div class="btn-group">
+                        <a href="{{ path('teacher_test_quiz', {id: quiz.id}) }}" class="btn btn-outline-success">
+                            <i class="bi bi-play-circle me-1"></i>Tester le Quiz
+                        </a>
+                        <a href="{{ path('teacher_download_quiz', {id: quiz.id}) }}" class="btn btn-outline-primary">
+                            <i class="bi bi-download me-1"></i>Télécharger JSON
+                        </a>
+                    </div>
+                </div>
+
+                <form method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="_token" value="{{ csrf_token('teacher_edit_quiz_' ~ quiz.id) }}">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Titre du Quiz</label>
+                        <input type="text" name="title" class="form-control" value="{{ quiz.title }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="3">{{ quiz.description }}</textarea>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h5 class="fw-bold mb-3">Remplacer les questions</h5>
+                    
+                    <ul class="nav nav-tabs mb-3" id="replaceTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload" type="button">Importer JSON</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                             <button class="nav-link" id="builder-tab" data-bs-toggle="tab" data-bs-target="#builder" type="button">Générateur</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="replaceTabsContent">
+                        <div class="tab-pane fade show active" id="upload" role="tabpanel">
+                            <div class="alert alert-info small">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Téléversez un nouveau fichier JSON pour remplacer complètement les questions actuelles.
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Fichier JSON</label>
+                                <input type="file" name="json_file" class="form-control" accept=".json">
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="builder" role="tabpanel">
+                            <div class="alert alert-warning small">
+                                <i class="bi bi-exclamation-triangle me-1"></i>
+                                L'utilisation du générateur écrasera le fichier JSON actuel.
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Nombre de questions</label>
+                                <div class="d-flex gap-2">
+                                    <input type="number" id="dynamic-question-count" class="form-control" min="1" max="50" value="{{ existingQuestions|length > 0 ? existingQuestions|length : 3 }}">
+                                    <button type="button" class="btn btn-outline-secondary" id="generate-dynamic">Mettre à jour les champs</button>
+                                </div>
+                            </div>
+
+                            <div id="dynamic-questions"></div>
+                            <input type="hidden" name="dynamic_quiz_json" id="dynamic-quiz-json">
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 pt-3 border-top mt-3">
+                        <a href="{{ path('teacher_edit_course', {id: quiz.lesson.course.id}) }}" class="btn btn-light">Annuler</a>
+                        <button type="submit" class="btn btn-primary px-4 fw-bold" id="save-quiz-btn">Enregistrer les modifications</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-4 shadow-sm border-0 bg-light">
+             <div class="card-body p-4">
+                 <h5 class="fw-bold mb-3 text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Zone de danger</h5>
+                 <p class="text-muted small">La suppression de ce quiz est irréversible. Toutes les tentatives des étudiants associées seront également supprimées.</p>
+                 <form method="post" action="{{ path('teacher_delete_quiz', {id: quiz.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce quiz ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('teacher_delete_quiz_' ~ quiz.id) }}">
+                    <button type="submit" class="btn btn-outline-danger"><i class="bi bi-trash me-1"></i>Supprimer le quiz</button>
+                 </form>
+             </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        const existingQuestions = {{ existingQuestions|json_encode|raw }};
+        const generateBtn = document.getElementById('generate-dynamic');
+        const container = document.getElementById('dynamic-questions');
+        const jsonField = document.getElementById('dynamic-quiz-json');
+        const saveBtn = document.getElementById('save-quiz-btn');
+
+        function buildFields(count, data = []) {
+            container.innerHTML = '';
+            for (let i = 1; i <= count; i++) {
+                const qData = data[i-1] || {};
+                const qText = qData.question || '';
+                const qAnswer = qData.answer !== undefined ? parseInt(qData.answer) + 1 : 1;
+                const options = qData.choices || ['', '', '', ''];
+
+                let optionsHtml = '';
+                for(let n = 1; n <= 4; n++) {
+                    const optVal = options[n-1] || '';
+                    optionsHtml += `
+                        <div class="mb-2">
+                             <label class="form-label small text-muted">Option ${n}</label>
+                             <input type="text" class="form-control form-control-sm" name="q${i}_option_${n}" value="${optVal.replace(/"/g, '&quot;')}" required>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML += `
+                <div class="card mb-3 border-light bg-light">
+                    <div class="card-body p-3">
+                        <h6 class="card-title text-primary"><i class="bi bi-question-circle me-2"></i>Question ${i}</h6>
+                        <div class="mb-3">
+                            <label class="form-label">Énoncé</label>
+                            <input type="text" class="form-control" name="q${i}_text" value="${qText.replace(/"/g, '&quot;')}" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                ${optionsHtml}
+                            </div>
+                            <div class="col-md-4 border-start">
+                                <label class="form-label">Bonne réponse</label>
+                                <select class="form-select" name="q${i}_answer">
+                                    <option value="1" ${qAnswer === 1 ? 'selected' : ''}>Option 1</option>
+                                    <option value="2" ${qAnswer === 2 ? 'selected' : ''}>Option 2</option>
+                                    <option value="3" ${qAnswer === 3 ? 'selected' : ''}>Option 3</option>
+                                    <option value="4" ${qAnswer === 4 ? 'selected' : ''}>Option 4</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
+        }
+
+        function buildJson() {
+            // Only build JSON if we are in builder tab or if dynamic fields are present
+            // However, the form submits everything. We need to check if the builder was used.
+            // Simplified: We always update the hidden field. If the user is on the "Importer JSON" tab, 
+            // the file input takes precedence in the controller (hopefully, but we should clear it if not used? 
+            // Or controller checks which one to use. Controller uses file if present, else checks dynamic json).
+            
+            const cards = container.querySelectorAll('.card-body');
+            if (cards.length === 0) return;
+
+            const questions = [];
+            let idx = 0;
+            cards.forEach((card) => {
+                idx++;
+                const text = card.querySelector(`[name="q${idx}_text"]`).value;
+                const choices = [];
+                for (let n = 1; n <= 4; n++) {
+                    choices.push(card.querySelector(`[name="q${idx}_option_${n}"]`).value);
+                }
+                const answer = parseInt(card.querySelector(`[name="q${idx}_answer"]`).value, 10) - 1;
+                questions.push({
+                    question: text,
+                    choices: choices,
+                    answer: isNaN(answer) ? 0 : answer
+                });
+            });
+            const payload = {
+                passing_score: 70, // Defaulting to 70 as per other quizzes, could be made editable
+                questions: questions
+            };
+            jsonField.value = JSON.stringify(payload);
+        }
+
+        generateBtn?.addEventListener('click', () => {
+            const count = parseInt(document.getElementById('dynamic-question-count').value, 10);
+            if (!count || count < 1) {
+                alert('Veuillez saisir un nombre de questions valide.');
+                return;
+            }
+            // If regenerating, we lose current edits unless we re-read them. 
+            // For now simple regen.
+            if(confirm("Cela va réinitialiser les champs de questions. Continuer ?")) {
+                buildFields(count);
+            }
+        });
+
+        saveBtn?.addEventListener('click', (e) => {
+            // If the Builder tab is active, we should ensure JSON is built
+            const activeTab = document.querySelector('#replaceTabs .nav-link.active');
+            if (activeTab && activeTab.id === 'builder-tab') {
+                buildJson();
+            }
+        });
+
+        // Initialize with existing questions
+        if (existingQuestions && existingQuestions.length > 0) {
+            buildFields(existingQuestions.length, existingQuestions);
+        } else {
+             buildFields(3);
+        }
+    </script>
+{% endblock %}
