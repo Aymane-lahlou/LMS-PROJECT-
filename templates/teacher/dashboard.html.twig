@@ -74,7 +74,7 @@
                 <div class="card h-100 course-card">
                     <div class="card-img-top bg-light d-flex align-items-center justify-content-center text-muted" style="height: 160px; overflow: hidden;">
                         {% if course.coursePicture and course.coursePicture != 'default-course.jpg' %}
-                            <img src="{{ course.coursePicture }}" alt="{{ course.title }}" class="w-100 h-100 object-fit-cover">
+                            <img src="{{ course.coursePicture starts with 'http' ? course.coursePicture : asset(course.coursePicture) }}" alt="{{ course.title }}" class="w-100 h-100 object-fit-cover">
                         {% else %}
                             <i class="bi bi-book fs-1"></i>
                         {% endif %}
